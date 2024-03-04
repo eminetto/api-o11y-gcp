@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"log/slog"
 	"net/http"
 	"os"
 	"time"
@@ -17,7 +18,6 @@ import (
 	"github.com/eminetto/api-o11y-gcp/vote"
 	sql_vote "github.com/eminetto/api-o11y-gcp/vote/sql"
 	"github.com/go-chi/chi"
-	"github.com/go-chi/httplog"
 	telemetrymiddleware "github.com/go-chi/telemetry"
 	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
@@ -25,27 +25,23 @@ import (
 
 func main() {
 	// Logger
-	//@todo remover logs de requests pq isso deve ser só métrica
-	//@todo adicionar o slog para log estruturado de erros
-	logger := httplog.NewLogger("auth", httplog.Options{
-		JSON: true,
-	})
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
 	err := godotenv.Load()
 	if err != nil {
-		logger.Panic().Msg(err.Error())
+		logger.Error(err.Error())
 	}
 
 	db, err := sql.Open("sqlite3", "ops/db/api.db")
 	if err != nil {
-		logger.Panic().Msg(err.Error())
+		logger.Error(err.Error())
 	}
 	defer db.Close()
 
 	ctx := context.Background()
-	otel, err := telemetry.NewJaeger(ctx, "auth")
+	otel, err := telemetry.NewJaeger(ctx, "api")
 	if err != nil {
-		logger.Panic().Msg(err.Error())
+		logger.Error(err.Error())
 	}
 	defer otel.Shutdown(ctx)
 
@@ -83,6 +79,6 @@ func main() {
 	}
 	err = srv.ListenAndServe()
 	if err != nil {
-		logger.Panic().Msg(err.Error())
+		logger.Error(err.Error())
 	}
 }

@@ -9,19 +9,20 @@ networks:
     name: api-o11y-gcp
     driver: bridge
 services:
-  # mysql:
-  #   image: mariadb:10.5.8
-  #   command: --default-authentication-plugin=mysql_native_password --init-file /data/application/init.sql
-  #   volumes:
-  #     - ./ops/db/init.sql:/data/application/init.sql
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: auth_pwd
-  #     MYSQL_DATABASE: auth_db
-  #     MYSQL_USER: auth_user
-  #     MYSQL_PASSWORD: auth_pwd
-  #   ports:
-  #     - "3306:3306"
-  #   container_name: mysql
+  api:
+    image: api
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    environment:
+      PORT: "8081"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "${OTEL_EXPORTER_OTLP_ENDPOINT}"
+      JAEGER_TRACEPROVIDER: "${JAEGER_TRACEPROVIDER}"
+    ports:
+      - "8081:8081"
+    container_name: api
+    depends_on:
+      - otelcol
   # ********************
   # Telemetry Components
   # ********************
