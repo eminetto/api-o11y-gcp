@@ -9,19 +9,19 @@ networks:
     name: api-o11y-gcp
     driver: bridge
 services:
-  mysql:
-    image: mariadb:10.5.8
-    command: --default-authentication-plugin=mysql_native_password --init-file /data/application/init.sql
-    volumes:
-      - ./ops/db/init.sql:/data/application/init.sql
-    environment:
-      MYSQL_ROOT_PASSWORD: auth_pwd
-      MYSQL_DATABASE: auth_db
-      MYSQL_USER: auth_user
-      MYSQL_PASSWORD: auth_pwd
-    ports:
-      - "3306:3306"
-    container_name: mysql
+  # mysql:
+  #   image: mariadb:10.5.8
+  #   command: --default-authentication-plugin=mysql_native_password --init-file /data/application/init.sql
+  #   volumes:
+  #     - ./ops/db/init.sql:/data/application/init.sql
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: auth_pwd
+  #     MYSQL_DATABASE: auth_db
+  #     MYSQL_USER: auth_user
+  #     MYSQL_PASSWORD: auth_pwd
+  #   ports:
+  #     - "3306:3306"
+  #   container_name: mysql
   # ********************
   # Telemetry Components
   # ********************

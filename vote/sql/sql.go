@@ -1,30 +1,31 @@
-package mysql
+package sql
 
 import (
 	"context"
 	"database/sql"
-	"github.com/eminetto/api-o11y/internal/telemetry"
-	"github.com/eminetto/api-o11y/votes/vote"
-	"go.opentelemetry.io/otel/codes"
 	"time"
+
+	"github.com/eminetto/api-o11y-gcp/internal/telemetry"
+	"github.com/eminetto/api-o11y-gcp/vote"
+	"go.opentelemetry.io/otel/codes"
 )
 
-// VoteMySQL mysql repo
-type VoteMySQL struct {
+// SQL mysql repo
+type SQL struct {
 	db        *sql.DB
 	telemetry telemetry.Telemetry
 }
 
-// NewVoteMySQL create new repository
-func NewVoteMySQL(db *sql.DB, telemetry telemetry.Telemetry) *VoteMySQL {
-	return &VoteMySQL{
+// NewSQL create new repository
+func NewSQL(db *sql.DB, telemetry telemetry.Telemetry) *SQL {
+	return &SQL{
 		db:        db,
 		telemetry: telemetry,
 	}
 }
 
 // Store a feedback
-func (r *VoteMySQL) Store(ctx context.Context, v *vote.Vote) error {
+func (r *SQL) Store(ctx context.Context, v *vote.Vote) error {
 	ctx, span := r.telemetry.Start(ctx, "mysql")
 	defer span.End()
 	stmt, err := r.db.Prepare(`

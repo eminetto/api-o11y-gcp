@@ -5,3 +5,5 @@ INSERT INTO user (id, email, password, first_name, last_name, created_at, update
 SELECT 'adb8101e-cfe6-4a71-8594-ebc80af3a86d','eminetto@email.com',SHA1('12345'), 'Elton', 'Minetto', now(), null FROM DUAL
 WHERE NOT EXISTS
     (SELECT email FROM user WHERE email='eminetto@email.com');
+create table if not exists feedback (id varchar(50),email varchar(255),title varchar(255),body text,  created_at datetime, updated_at datetime, PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;    
+create table if not exists vote (id varchar(50),email varchar(255),talk_name varchar(255), score int,  created_at datetime, updated_at datetime, PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;

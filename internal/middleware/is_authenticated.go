@@ -21,7 +21,7 @@ func Handler(ctx context.Context, telemetry telemetry.Telemetry) func(next http.
 		fn := func(rw http.ResponseWriter, r *http.Request) {
 			_, span := telemetry.Start(ctx, "IsAuthenticated")
 			defer span.End()
-			errorMessage := "Erro na autenticação"
+			errorMessage := "Erro na autenticação" // traduzir pra ingles e remover o Erro do começo
 			tokenString := r.Header.Get("Authorization")
 			if tokenString == "" {
 				err := errors.New("Unauthorized")
@@ -31,7 +31,6 @@ func Handler(ctx context.Context, telemetry telemetry.Telemetry) func(next http.
 				return
 			}
 
-			//@todo não precisa fazer o http get, deve usar o user.ValidateToken
 			t, err := security.ParseToken(tokenString)
 			if err != nil {
 				span.RecordError(err)
@@ -47,6 +46,7 @@ func Handler(ctx context.Context, telemetry telemetry.Telemetry) func(next http.
 				return
 			}
 			email := tData["email"].(string)
+			type key string
 
 			newCTX := context.WithValue(r.Context(), "email", email)
 			next.ServeHTTP(rw, r.WithContext(newCTX))

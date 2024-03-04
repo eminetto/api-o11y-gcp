@@ -1,31 +1,32 @@
-package mysql
+package sql
 
 import (
 	"context"
 	"database/sql"
-	"github.com/eminetto/api-o11y/feedbacks/feedback"
-	"github.com/eminetto/api-o11y/internal/telemetry"
-	"go.opentelemetry.io/otel/codes"
 	"time"
+
+	"github.com/eminetto/api-o11y-gcp/feedback"
+	"github.com/eminetto/api-o11y-gcp/internal/telemetry"
+	"go.opentelemetry.io/otel/codes"
 )
 
-// FeedbackMySQL mysql repo
-type FeedbackMySQL struct {
+// SQL repo
+type SQL struct {
 	db        *sql.DB
 	telemetry telemetry.Telemetry
 }
 
-// NewFeedbackMySQL create new repository
-func NewUserMySQL(db *sql.DB, telemetry telemetry.Telemetry) *FeedbackMySQL {
-	return &FeedbackMySQL{
+// NewSQL create new repository
+func NewSQL(db *sql.DB, telemetry telemetry.Telemetry) *SQL {
+	return &SQL{
 		db:        db,
 		telemetry: telemetry,
 	}
 }
 
 // Store a feedback
-func (r *FeedbackMySQL) Store(ctx context.Context, f *feedback.Feedback) error {
-	ctx, span := r.telemetry.Start(ctx, "mysql")
+func (r *SQL) Store(ctx context.Context, f *feedback.Feedback) error {
+	ctx, span := r.telemetry.Start(ctx, "sql")
 	defer span.End()
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {

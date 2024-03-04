@@ -3,20 +3,24 @@ package main
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/eminetto/api-o11y-gcp/auth"
+	"github.com/eminetto/api-o11y-gcp/feedback"
+	sql_feedback "github.com/eminetto/api-o11y-gcp/feedback/sql"
+	"github.com/eminetto/api-o11y-gcp/internal/middleware"
 	"github.com/eminetto/api-o11y-gcp/internal/telemetry"
 	"github.com/eminetto/api-o11y-gcp/user"
-	mysql_user "github.com/eminetto/api-o11y-gcp/user/mysql"
+	sql_user "github.com/eminetto/api-o11y-gcp/user/sql"
+	"github.com/eminetto/api-o11y-gcp/vote"
+	sql_vote "github.com/eminetto/api-o11y-gcp/vote/sql"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/httplog"
 	telemetrymiddleware "github.com/go-chi/telemetry"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
@@ -32,8 +36,7 @@ func main() {
 		logger.Panic().Msg(err.Error())
 	}
 
-	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_DATABASE"))
-	db, err := sql.Open("mysql", dataSourceName)
+	db, err := sql.Open("sqlite3", "ops/db/api.db")
 	if err != nil {
 		logger.Panic().Msg(err.Error())
 	}
@@ -46,15 +49,30 @@ func main() {
 	}
 	defer otel.Shutdown(ctx)
 
-	repo := mysql_user.NewUserMySQL(db, otel)
-	uService := user.NewService(repo, otel)
+	uRepo := sql_user.NewSQL(db, otel)
+	uService := user.NewService(uRepo, otel)
+
+	fRepo := sql_feedback.NewSQL(db, otel)
+	fService := feedback.NewService(fRepo, otel)
+
+	vRepo := sql_vote.NewSQL(db, otel)
+	vService := vote.NewService(vRepo, otel)
 
 	r := chi.NewRouter()
-	r.Use(httplog.RequestLogger(logger))
 	r.Use(telemetrymiddleware.Collector(telemetrymiddleware.Config{
 		AllowAny: true,
 	}, []string{"/v1"})) // path prefix filters basically records generic http request metrics
 	r.Post("/v1/auth", auth.UserAuth(ctx, uService, otel))
+
+	r.Route("/v1/feedback", func(r chi.Router) {
+		r.With(middleware.IsAuthenticated(ctx, otel)).
+			Post("/", feedback.Store(ctx, fService, otel))
+	})
+
+	r.Route("/v1/vote", func(r chi.Router) {
+		r.With(middleware.IsAuthenticated(ctx, otel)).
+			Post("/", vote.Store(ctx, vService, otel))
+	})
 
 	http.Handle("/", r)
 	srv := &http.Server{

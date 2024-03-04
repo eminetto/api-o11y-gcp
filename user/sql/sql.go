@@ -1,4 +1,4 @@
-package mysql
+package sql
 
 import (
 	"context"
@@ -9,23 +9,23 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
-// UserMySQL mysql repo
-type UserMySQL struct {
+// SQL mysql repo
+type SQL struct {
 	db        *sql.DB
 	telemetry telemetry.Telemetry
 }
 
-// NewUserMySQL create new repository
-func NewUserMySQL(db *sql.DB, telemetry telemetry.Telemetry) *UserMySQL {
-	return &UserMySQL{
+// NewSQL create new repository
+func NewSQL(db *sql.DB, telemetry telemetry.Telemetry) *SQL {
+	return &SQL{
 		db:        db,
 		telemetry: telemetry,
 	}
 }
 
 // Get an user
-func (r *UserMySQL) Get(ctx context.Context, email string) (*user.User, error) {
-	ctx, span := r.telemetry.Start(ctx, "mysql")
+func (r *SQL) Get(ctx context.Context, email string) (*user.User, error) {
+	ctx, span := r.telemetry.Start(ctx, "sql")
 	defer span.End()
 	stmt, err := r.db.Prepare(`select id, email, password, first_name, last_name from user where email = ?`)
 	if err != nil {
