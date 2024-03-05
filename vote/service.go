@@ -25,7 +25,7 @@ func NewService(repo Repository, telemetry telemetry.Telemetry) *Service {
 }
 
 func (s *Service) Store(ctx context.Context, v *Vote) (uuid.UUID, error) {
-	ctx, span := s.telemetry.Start(ctx, "service")
+	ctx, span := s.telemetry.Start(ctx, "vote:service")
 	defer span.End()
 	v.ID = uuid.New()
 	err := s.repo.Store(ctx, v)

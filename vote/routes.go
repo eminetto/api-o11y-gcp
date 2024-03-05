@@ -14,7 +14,7 @@ import (
 func Store(ctx context.Context, vService UseCase, otel telemetry.Telemetry) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		oplog := httplog.LogEntry(r.Context())
-		ctx, span := otel.Start(ctx, "store")
+		ctx, span := otel.Start(ctx, "vote:store")
 		defer span.End()
 		var v Vote
 		err := json.NewDecoder(r.Body).Decode(&v)

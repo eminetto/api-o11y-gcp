@@ -32,14 +32,14 @@ func main() {
 		logger.Error(err.Error())
 	}
 
-	db, err := sql.Open("sqlite3", "ops/db/api.db")
+	db, err := sql.Open("sqlite3", "./ops/db/api.db")
 	if err != nil {
 		logger.Error(err.Error())
 	}
 	defer db.Close()
 
 	ctx := context.Background()
-	otel, err := telemetry.NewJaeger(ctx, "api")
+	otel, err := telemetry.New(ctx, "api")
 	if err != nil {
 		logger.Error(err.Error())
 	}
