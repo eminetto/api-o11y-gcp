@@ -9,7 +9,7 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
-// SQL mysql repo
+// SQL sql repo
 type SQL struct {
 	db        *sql.DB
 	telemetry telemetry.Telemetry

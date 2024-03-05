@@ -61,13 +61,13 @@ func main() {
 	r.Post("/v1/auth", auth.UserAuth(ctx, uService, otel))
 
 	r.Route("/v1/feedback", func(r chi.Router) {
-		r.With(middleware.IsAuthenticated(ctx, otel)).
-			Post("/", feedback.Store(ctx, fService, otel))
+		r.With(middleware.IsAuthenticated(ctx, otel, "feedback")).
+			Post("/", feedback.Store(fService, otel))
 	})
 
 	r.Route("/v1/vote", func(r chi.Router) {
-		r.With(middleware.IsAuthenticated(ctx, otel)).
-			Post("/", vote.Store(ctx, vService, otel))
+		r.With(middleware.IsAuthenticated(ctx, otel, "vote")).
+			Post("/", vote.Store(vService, otel))
 	})
 
 	http.Handle("/", r)

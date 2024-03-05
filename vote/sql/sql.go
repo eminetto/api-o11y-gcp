@@ -10,7 +10,7 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
-// SQL mysql repo
+// SQL sql repo
 type SQL struct {
 	db        *sql.DB
 	telemetry telemetry.Telemetry
@@ -26,7 +26,7 @@ func NewSQL(db *sql.DB, telemetry telemetry.Telemetry) *SQL {
 
 // Store a feedback
 func (r *SQL) Store(ctx context.Context, v *vote.Vote) error {
-	ctx, span := r.telemetry.Start(ctx, "vote:mysql")
+	ctx, span := r.telemetry.Start(ctx, "vote: sql")
 	defer span.End()
 	stmt, err := r.db.Prepare(`
 		insert into vote (id, email, talk_name, score, created_at) 

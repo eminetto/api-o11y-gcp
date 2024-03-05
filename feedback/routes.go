@@ -1,7 +1,6 @@
 package feedback
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 
@@ -11,10 +10,10 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
-func Store(ctx context.Context, fService UseCase, otel telemetry.Telemetry) http.HandlerFunc {
+func Store(fService UseCase, otel telemetry.Telemetry) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		oplog := httplog.LogEntry(r.Context())
-		ctx, span := otel.Start(ctx, "feedback:store")
+		ctx, span := otel.Start(r.Context(), "feedback: store")
 		defer span.End()
 		var f Feedback
 		err := json.NewDecoder(r.Body).Decode(&f)

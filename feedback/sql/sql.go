@@ -26,7 +26,7 @@ func NewSQL(db *sql.DB, telemetry telemetry.Telemetry) *SQL {
 
 // Store a feedback
 func (r *SQL) Store(ctx context.Context, f *feedback.Feedback) error {
-	ctx, span := r.telemetry.Start(ctx, "feedback:sql")
+	ctx, span := r.telemetry.Start(ctx, "feedback: sql")
 	defer span.End()
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {

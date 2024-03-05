@@ -25,7 +25,7 @@ func NewService(repo Repository, otel telemetry.Telemetry) *Service {
 }
 
 func (s *Service) Store(ctx context.Context, f *Feedback) (uuid.UUID, error) {
-	ctx, span := s.telemetry.Start(ctx, "feedback:service")
+	ctx, span := s.telemetry.Start(ctx, "feedback: service")
 	defer span.End()
 	f.ID = uuid.New()
 	err := s.repo.Store(ctx, f)
