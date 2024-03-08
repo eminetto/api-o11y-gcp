@@ -39,7 +39,7 @@ func main() {
 	defer db.Close()
 
 	ctx := context.Background()
-	otel, err := telemetry.New(ctx, "api")
+	otel, err := telemetry.NewGCP(ctx, "api-gcp-elton")
 	if err != nil {
 		logger.Error(err.Error())
 	}
