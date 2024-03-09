@@ -43,6 +43,7 @@ func Store(vService UseCase, otel telemetry.Telemetry) http.HandlerFunc {
 			span.SetStatus(codes.Error, err.Error())
 			return
 		}
+		w.WriteHeader(http.StatusCreated)
 		return
 	}
 }

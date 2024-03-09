@@ -29,4 +29,4 @@ scrape_configs:
     scrape_interval: 10s
     static_configs:
       - targets:
-          - "api:8081"
+          - "api:8080"

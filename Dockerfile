@@ -34,6 +34,6 @@ WORKDIR /
 COPY --from=builder /workspace/api .
 COPY --from=builder /workspace/.env .env
 COPY --from=builder /workspace/ops/db/ ops/db/
-EXPOSE 8081
+EXPOSE 8080
 
 ENTRYPOINT ["/api"]

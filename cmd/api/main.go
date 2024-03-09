@@ -39,7 +39,7 @@ func main() {
 	defer db.Close()
 
 	ctx := context.Background()
-	otel, err := telemetry.NewGCP(ctx, "api-gcp-elton")
+	otel, err := telemetry.NewGCP(ctx, "api-o11y-gcp")
 	if err != nil {
 		logger.Error(err.Error())
 	}
@@ -68,6 +68,14 @@ func main() {
 	r.Route("/v1/vote", func(r chi.Router) {
 		r.With(middleware.IsAuthenticated(ctx, otel, "vote")).
 			Post("/", vote.Store(vService, otel))
+	})
+
+	r.Get("/startup", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("startup"))
+	})
+
+	r.Get("/liveness", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("liveness"))
 	})
 
 	http.Handle("/", r)

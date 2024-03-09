@@ -25,4 +25,4 @@ test: generate-mocks
 	go test ./...
 
 run-docker: build-docker
-    docker run -d -p 8081:8081 api-o11y-gcp
+    docker run -d -p 8080:8080 api-o11y-gcp

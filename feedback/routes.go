@@ -3,6 +3,7 @@ package feedback
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/eminetto/api-o11y-gcp/internal/telemetry"
 	"github.com/go-chi/httplog"
@@ -41,6 +42,9 @@ func Store(fService UseCase, otel telemetry.Telemetry) http.HandlerFunc {
 			span.SetStatus(codes.Error, err.Error())
 			return
 		}
+		// adiciona tempo para mostrar latencia no grafico
+		time.Sleep(30 * time.Second)
+		w.WriteHeader(http.StatusCreated)
 		return
 	}
 }

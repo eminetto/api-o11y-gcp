@@ -1,0 +1,29 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  annotations:
+    run.googleapis.com/launch-stage: ALPHA
+  name: api-o11y-gcp
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/execution-environment: gen2
+        run.googleapis.com/container-dependencies: '{"collector":["app"]}'
+    spec:
+      containers:
+        # - image: "southamerica-east1-docker.pkg.dev/api-o11y-gcp/cloud-run-source-deploy/api-o11y-gcp"
+        - image: "southamerica-east1-docker.pkg.dev/api-o11y-gcp/cloud-run-source-deploy/api-o11y-gcp@sha256:c9f672b553b714d8476f09ca33ae74a4aef4e88b5e8b0fbe9a4d33f5ccbec412"
+          name: app
+          startupProbe:
+            httpGet:
+              path: /startup
+              port: 8080
+          livenessProbe:
+            httpGet:
+              path: /liveness
+              port: 8080
+          ports:
+            - containerPort: 8080
+        - image: "us-docker.pkg.dev/cloud-ops-agents-artifacts/cloud-run-gmp-sidecar/cloud-run-gmp-sidecar:1.1.0"
+          name: collector
