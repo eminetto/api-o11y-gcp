@@ -8,13 +8,11 @@ import (
 	"github.com/eminetto/api-o11y-gcp/auth/security"
 	"github.com/eminetto/api-o11y-gcp/internal/telemetry"
 	"github.com/eminetto/api-o11y-gcp/user"
-	"github.com/go-chi/httplog"
 	"go.opentelemetry.io/otel/codes"
 )
 
 func UserAuth(ctx context.Context, uService user.UseCase, otel telemetry.Telemetry) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		oplog := httplog.LogEntry(r.Context())
 		ctx, span := otel.Start(ctx, "userAuth")
 		defer span.End()
 		var param struct {
@@ -26,7 +24,6 @@ func UserAuth(ctx context.Context, uService user.UseCase, otel telemetry.Telemet
 			w.WriteHeader(http.StatusBadGateway)
 			span.RecordError(err)
 			span.SetStatus(codes.Error, err.Error())
-			oplog.Error().Msg(err.Error())
 			return
 		}
 		err = uService.ValidateUser(ctx, param.Email, param.Password)
@@ -34,7 +31,6 @@ func UserAuth(ctx context.Context, uService user.UseCase, otel telemetry.Telemet
 			w.WriteHeader(http.StatusForbidden)
 			span.RecordError(err)
 			span.SetStatus(codes.Error, err.Error())
-			oplog.Error().Msg(err.Error())
 			return
 		}
 		var result struct {
@@ -43,7 +39,6 @@ func UserAuth(ctx context.Context, uService user.UseCase, otel telemetry.Telemet
 		result.Token, err = security.NewToken(param.Email)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			oplog.Error().Msg(err.Error())
 			span.SetStatus(codes.Error, err.Error())
 			span.RecordError(err)
 			return
@@ -51,7 +46,6 @@ func UserAuth(ctx context.Context, uService user.UseCase, otel telemetry.Telemet
 
 		if err := json.NewEncoder(w).Encode(result); err != nil {
 			w.WriteHeader(http.StatusBadGateway)
-			oplog.Error().Msg(err.Error())
 			span.SetStatus(codes.Error, err.Error())
 			span.RecordError(err)
 			return
