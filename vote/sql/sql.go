@@ -56,6 +56,7 @@ func (r *SQL) Store(ctx context.Context, v *vote.Vote) error {
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
+		tx.Rollback()
 		return err
 	}
 	return nil
