@@ -27,12 +27,12 @@ func NewSQL(db *sql.DB, telemetry telemetry.Telemetry) *SQL {
 func (r *SQL) Get(ctx context.Context, email string) (*user.User, error) {
 	ctx, span := r.telemetry.Start(ctx, "sql")
 	defer span.End()
-	stmt, err := r.db.Prepare(`select id, email, password, first_name, last_name from user where email = ?`)
+	stmt, err := r.db.PrepareContext(ctx, `select id, email, password, first_name, last_name from user where email = ?`)
 	if err != nil {
 		return nil, err
 	}
 	var u user.User
-	rows, err := stmt.Query(email)
+	rows, err := stmt.QueryContext(ctx, email)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())

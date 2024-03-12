@@ -28,13 +28,20 @@ func NewSQL(db *sql.DB, telemetry telemetry.Telemetry) *SQL {
 func (r *SQL) Store(ctx context.Context, v *vote.Vote) error {
 	ctx, span := r.telemetry.Start(ctx, "vote: sql")
 	defer span.End()
-	stmt, err := r.db.Prepare(`
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+		return err
+	}
+	defer tx.Commit()
+	stmt, err := r.db.PrepareContext(ctx, `
 		insert into vote (id, email, talk_name, score, created_at) 
 		values(?,?,?,?,?)`)
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(
+	_, err = stmt.ExecContext(ctx,
 		v.ID,
 		v.Email,
 		v.TalkName,

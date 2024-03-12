@@ -35,13 +35,13 @@ func (r *SQL) Store(ctx context.Context, f *feedback.Feedback) error {
 		return err
 	}
 	defer tx.Commit()
-	stmt, err := tx.Prepare(`
+	stmt, err := tx.PrepareContext(ctx, `
 		insert into feedback (id, email, title, body, created_at) 
 		values(?,?,?,?,?)`)
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(
+	_, err = stmt.ExecContext(ctx,
 		f.ID,
 		f.Email,
 		f.Title,

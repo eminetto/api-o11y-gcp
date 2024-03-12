@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"log/slog"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/XSAM/otelsql"
 	"github.com/eminetto/api-o11y-gcp/auth"
 	"github.com/eminetto/api-o11y-gcp/feedback"
 	sql_feedback "github.com/eminetto/api-o11y-gcp/feedback/sql"
@@ -21,6 +21,7 @@ import (
 	telemetrymiddleware "github.com/go-chi/telemetry"
 	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
+	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
 )
 
 func main() {
@@ -32,11 +33,19 @@ func main() {
 		logger.Error(err.Error())
 	}
 
-	db, err := sql.Open("sqlite3", "./ops/db/api.db")
+	db, err := otelsql.Open("sqlite3", "./ops/db/api.db", otelsql.WithAttributes(
+		semconv.DBSystemSqlite,
+	))
 	if err != nil {
 		logger.Error(err.Error())
 	}
 	defer db.Close()
+	err = otelsql.RegisterDBStatsMetrics(db, otelsql.WithAttributes(
+		semconv.DBSystemSqlite,
+	))
+	if err != nil {
+		logger.Error(err.Error())
+	}
 
 	ctx := context.Background()
 	otel, err := telemetry.NewGCP(ctx, "api-o11y-gcp")
