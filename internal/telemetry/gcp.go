@@ -40,7 +40,7 @@ func NewGCP(ctx context.Context, serviceName string) (*GCPOTel, error) {
 }
 
 // Start a trace
-func (ot *GCPOTel) Start(ctx context.Context, name string, opts ...trace.SpanStartOption) (context.Context, Span) {
+func (ot *GCPOTel) Start(ctx context.Context, name string, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
 	if len(opts) == 0 {
 		return ot.tracer.Start(ctx, name)
 	}

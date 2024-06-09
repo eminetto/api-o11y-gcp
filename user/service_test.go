@@ -8,18 +8,14 @@ import (
 	"github.com/eminetto/api-o11y-gcp/user"
 	"github.com/eminetto/api-o11y-gcp/user/mocks"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func TestValidatePassword(t *testing.T) {
 	ctx := context.TODO()
 	repo := mocks.NewRepository(t)
 	otel := tmocks.NewTelemetry(t)
-	span := tmocks.NewSpan(t)
-	span.On("RecordError", mock.Anything).Return(nil)
-	span.On("SetStatus", mock.Anything, mock.Anything).Return(nil)
-	span.On("End").Return(nil)
-	otel.On("Start", ctx, "validatePassword").Return(ctx, span)
+	otel.On("Start", ctx, "validatePassword").Return(ctx, trace.SpanFromContext(ctx))
 
 	s := user.NewService(repo, otel)
 	u := &user.User{

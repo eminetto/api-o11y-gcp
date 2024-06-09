@@ -2,6 +2,8 @@ package telemetry
 
 import (
 	"context"
+	"os"
+
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/propagation"
@@ -9,7 +11,6 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
 	"go.opentelemetry.io/otel/trace"
-	"os"
 )
 
 type OTel struct {
@@ -34,7 +35,7 @@ func New(ctx context.Context, serviceName string) (*OTel, error) {
 	}, nil
 }
 
-func (ot *OTel) Start(ctx context.Context, name string, opts ...trace.SpanStartOption) (context.Context, Span) {
+func (ot *OTel) Start(ctx context.Context, name string, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
 	if len(opts) == 0 {
 		return ot.tracer.Start(ctx, name)
 	}
@@ -55,11 +56,10 @@ func createOtelTraceProvider(ctx context.Context, serviceName string) (*sdktrace
 		return nil, err
 	}
 
-	exp, err :=
-		otlptracegrpc.New(ctx,
-			otlptracegrpc.WithInsecure(),
-			otlptracegrpc.WithEndpoint(os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT")),
-		)
+	exp, err := otlptracegrpc.New(ctx,
+		otlptracegrpc.WithInsecure(),
+		otlptracegrpc.WithEndpoint(os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT")),
+	)
 	if err != nil {
 		return nil, err
 	}
